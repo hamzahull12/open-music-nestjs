@@ -1,4 +1,13 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { SongsService } from './songs.service';
 import { JoiValidationPipe } from 'src/common/pipes/joi-validation.pipe';
 import { createSongSchema } from './validation/song.schema';
@@ -19,6 +28,49 @@ export class SongsController {
       data: {
         songId,
       },
+    };
+  }
+
+  @Get()
+  async getSongs() {
+    const songs = await this.songsService.getSongs();
+    return {
+      status: 'success',
+      data: {
+        songs,
+      },
+    };
+  }
+
+  @Get(':id')
+  async getSongsById(@Param('id') id: string) {
+    const song = await this.songsService.getSongById(id);
+    return {
+      status: 'success',
+      data: {
+        song,
+      },
+    };
+  }
+
+  @Put(':id')
+  async putSongById(
+    @Param('id') id: string,
+    @Body(new JoiValidationPipe(createSongSchema)) payload: CreateSongDto,
+  ) {
+    await this.songsService.editSongById(id, payload);
+    return {
+      status: 'success',
+      message: 'Lagu Berhasil diperbarui',
+    };
+  }
+
+  @Delete(':id')
+  async deleteSongById(@Param('id') id: string) {
+    await this.songsService.deleteSongById(id);
+    return {
+      status: 'success',
+      message: 'Lagu berhasil dihapus',
     };
   }
 }

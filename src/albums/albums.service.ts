@@ -44,4 +44,41 @@ export class AlbumsService {
     }
     return result.rows[0];
   }
+
+  async editAlbumById(id: string, payload: CreateAlbumDto) {
+    const { name, year } = payload;
+    const query = {
+      text: 'UPDATE albums SET name= $1, year= $2 WHERE id = $3 RETURNING id',
+      values: [name, year, id],
+    };
+
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new HttpException(
+        {
+          status: 'fail',
+          message: `album tidak dengan id ${id} tidak ditemukan`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  async deleteAlbumById(id: string) {
+    const query = {
+      text: 'DELETE FROM albums WHERE id = $1 RETURNING id',
+      values: [id],
+    };
+
+    const result = await this.pool.query(query);
+    if (!result.rowCount) {
+      throw new HttpException(
+        {
+          status: 'fail',
+          message: 'Album gagal dihapus',
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
 }

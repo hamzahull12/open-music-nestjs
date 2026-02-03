@@ -1,7 +1,19 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { AlbumsService } from './albums.service';
 import { JoiValidationPipe } from 'src/common/pipes/joi-validation.pipe';
-import { createAlbumSchema } from './validation/album.schema';
+import {
+  createAlbumSchema,
+  updateAlbumSchema,
+} from './validation/album.schema';
 import { CreateAlbumDto } from './dto/create-album';
 
 @Controller('albums')
@@ -30,6 +42,28 @@ export class AlbumsController {
       data: {
         album,
       },
+    };
+  }
+
+  @Put(':id')
+  async putAlbumById(
+    @Param('id') id: string,
+    @Body(new JoiValidationPipe(updateAlbumSchema))
+    payload: CreateAlbumDto,
+  ) {
+    await this.albumsService.editAlbumById(id, payload);
+    return {
+      status: 'success',
+      message: 'Album berhasil diperbarui',
+    };
+  }
+
+  @Delete(':id')
+  async deleteAlbumById(@Param('id') id: string) {
+    await this.albumsService.deleteAlbumById(id);
+    return {
+      status: 'success',
+      message: 'Album berhasil dihapus',
     };
   }
 }

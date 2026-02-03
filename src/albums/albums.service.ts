@@ -28,7 +28,14 @@ export class AlbumsService {
 
   async getAlbumById(id: string) {
     const query = {
-      text: 'SELECT * FROM albums WHERE id = $1',
+      text: `SELECT albums.*,
+          COALESCE(json_agg(json_build_object
+          ('id', songs.id, 'title', songs.title, 'performer', songs.performer))
+          FILTER (WHERE songs.id IS NOT NULL), '[]') AS songs
+          FROM albums
+          LEFT JOIN songs ON albums.id = songs.album_id
+          WHERE albums.id = $1
+          GROUP BY albums.id`,
       values: [id],
     };
 

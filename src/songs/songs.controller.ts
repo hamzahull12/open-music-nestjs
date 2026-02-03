@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { SongsService } from './songs.service';
 import { JoiValidationPipe } from 'src/common/pipes/joi-validation.pipe';
@@ -32,8 +33,11 @@ export class SongsController {
   }
 
   @Get()
-  async getSongs() {
-    const songs = await this.songsService.getSongs();
+  async getSongs(
+    @Query('title') title?: string,
+    @Query('performer') performer?: string,
+  ) {
+    const songs = await this.songsService.getSongs({ title, performer });
     return {
       status: 'success',
       data: {
